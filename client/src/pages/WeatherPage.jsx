@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+
 import { AlertTriangle, ArrowDown, ArrowUp, BarChart2, Cloud, CloudRain, Droplet, Layers, Navigation, Sun, Thermometer, Wind } from "react-feather"
+
 import BottomNav from "../components/BottomNav"
 import Chatbot from "../components/Chatbot/Chatbot"
 import TopBar from "../components/TopBar"
@@ -228,9 +230,12 @@ const WeatherPage = () => {
           <div className="flex justify-between items-start">
             <div class="mr-2">
               <div className="flex items-center">
+
                 {getWeatherIcon(currentWeather?.condition, 30)}
                 <div className="ml-4">
                   <div className="text-3xl font-bold">{currentWeather?.temperature}°C</div>
+
+               
                   <div className="text-lg mt-1 opacity-90">
                     {currentWeather?.condition}
                   </div>
@@ -301,7 +306,10 @@ const WeatherPage = () => {
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="font-medium text-gray-700 mb-2">Water Table Level</h3>
               <div className="flex items-end space-x-2">
-                <div className="text-3xl font-bold mr-1 text-blue-700">{groundWaterData.currentLevel}</div>
+
+
+                <div className="text-3xl font-bold text-blue-700">{groundWaterData.currentLevel}</div>
+
                 <div className="text-sm text-gray-500 mb-1">meters</div>
                 <div className="flex items-center text-sm ml-2">
                   <span className={gwTrend.text}>{gwTrend.icon} {Math.abs(gwTrend.value)}%</span>
