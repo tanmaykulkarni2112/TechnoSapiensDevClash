@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import TopBar from "../components/TopBar";
-import BottomNav from "../components/BottomNav";
-import WeatherWidget from "../components/WeatherWidget";
-import MapPreview from "../components/MapPreview";
 import AnalyticsDashboard from "../components/AnalyticsDashboard";
+import BottomNav from "../components/BottomNav";
+import Chatbot from "../components/Chatbot/Chatbot";
+import MapPreview from "../components/MapPreview";
 import TipOfTheDay from "../components/TipOfTheDay";
+import TopBar from "../components/TopBar";
+import WeatherWidget from "../components/WeatherWidget";
+import { useAuth } from "../context/AuthContext";
 
 
 const HomePage = () => {
@@ -50,7 +50,9 @@ const HomePage = () => {
           <TipOfTheDay />
         </div>
       </main>
-
+       {/* chatbot-p */}
+      <Chatbot />
+      
       <BottomNav />
     </div>
   );

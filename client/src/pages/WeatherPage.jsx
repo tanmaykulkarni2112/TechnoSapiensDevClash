@@ -261,7 +261,7 @@ const WeatherPage = () => {
           </p>
         </div>
       </main>
-
+      
       <BottomNav />
     </div>
   )
