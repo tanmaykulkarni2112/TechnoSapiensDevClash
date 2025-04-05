@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"
-import LanguageSelector from "../components/LanguageSelector"
+import LanguageSelector from "../components/LanguageSelector";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -45,95 +45,56 @@ const LoginPage = () => {
     }
   }
 
+  const defaultTexts = {
+    title: "Welcome Back",
+    phoneLabel: "Phone Number",
+    passwordLabel: "Password",
+    rememberMe: "Remember me",
+    forgotPassword: "Forgot password?",
+    loginButton: "Login",
+    noAccount: "Don't have an account?",
+    signup: "Sign up",
+  };
+
+  const [translatedText, setTranslatedText] = useState(defaultTexts);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 flex flex-col">
       <header className="p-4 flex justify-between items-center">
-        <Link to="/" className="text-green-700 font-bold text-xl">
-          SmartFarm
-        </Link>
-        <LanguageSelector isDark={true} />
+        <Link to="/" className="text-green-700 font-bold text-xl">SmartFarm</Link>
+        <LanguageSelector
+          textKeys={Object.keys(defaultTexts).map((key) => ({ key, value: defaultTexts[key] }))}
+          setTranslatedText={setTranslatedText}
+        />
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-4">
         <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back</h1>
-
-          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">{translatedText.title}</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your phone number"
-              />
+              <label className="block text-gray-700 text-sm font-medium mb-2">{translatedText.phoneLabel}</label>
+              <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" placeholder="Enter phone number" />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter your password"
-              />
+              <label className="block text-gray-700 text-sm font-medium mb-2">{translatedText.passwordLabel}</label>
+              <input type="password" id="password" name="password" required value={formData.password} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" placeholder="Enter password" />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a href="#" className="text-green-600 hover:text-green-500">
-                  Forgot password?
-                </a>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300"
-            >
-              Login
+            <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">
+              {translatedText.loginButton}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-green-600 hover:text-green-500 font-medium">
-                Sign up
-              </Link>
-            </p>
+            <p>{translatedText.noAccount} <Link to="/signup" className="text-green-600 font-medium">{translatedText.signup}</Link></p>
           </div>
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
-
+export default LoginPage;

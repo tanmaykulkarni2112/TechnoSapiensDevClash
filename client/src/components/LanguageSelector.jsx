@@ -1,55 +1,53 @@
-"use client"
+import { useState } from "react";
+import { translateText } from "../utils/translate";
 
-import { useState } from "react"
-import { Globe } from "react-feather"
+const LanguageSelector = ({ textKeys, setTranslatedText }) => {
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [loading, setLoading] = useState(false);
 
-const languages = [
-  { code: "en", name: "English" },
-  { code: "es", name: "Español" },
-  { code: "fr", name: "Français" },
-  { code: "hi", name: "हिन्दी" },
-]
+  const handleLanguageChange = async (event) => {
+    const newLanguage = event.target.value;
+    setSelectedLanguage(newLanguage);
+    setLoading(true);
 
-const LanguageSelector = ({ isDark = false }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0])
+    try {
+      const translatedTexts = await Promise.all(
+        textKeys.map(async (text) => ({
+          key: text.key,
+          value: await translateText(text.value, "en", newLanguage),
+        }))
+      );
 
-  const toggleDropdown = () => setIsOpen(!isOpen)
+      // Convert array to object for state update
+      const translations = translatedTexts.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
 
-  const selectLanguage = (language) => {
-    setSelectedLanguage(language)
-    setIsOpen(false)
-    // In a real app, you would update the app's language here
-  }
-
-  const textColor = isDark ? "text-gray-800" : "text-white"
+      setTranslatedText(translations);
+    } catch (error) {
+      console.error("Translation failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="relative">
-      <button
-        onClick={toggleDropdown}
-        className={`flex items-center space-x-1 ${textColor} hover:opacity-80 transition-opacity duration-200 py-2 px-3 rounded-full`}
-      >
-        <Globe size={20} />
-        <span>{selectedLanguage.code.toUpperCase()}</span>
-      </button>
+    <select
+      value={selectedLanguage}
+      onChange={handleLanguageChange}
+      disabled={loading}
+      className="p-2 border rounded"
+    >
+      <option value="en">English</option>
+      <option value="hi">हिन्दी (Hindi)</option>
+      <option value="bn">বাংলা (Bengali)</option>
+      <option value="mr">मराठी (Marathi)</option>
+      <option value="te">తెలుగు (Telugu)</option>
+      <option value="ta">தமிழ் (Tamil)</option>
+      <option value="gu">ગુજરાતી (Gujarati)</option>
+    </select>
+  );
+};
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
-          {languages.map((language) => (
-            <button
-              key={language.code}
-              onClick={() => selectLanguage(language)}
-              className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors duration-150"
-            >
-              {language.name}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-export default LanguageSelector
-
+export default LanguageSelector;
