@@ -118,6 +118,24 @@ const WeatherWidget = () => {
           </div>
         </div>
 
+
+         {/* Smart Watering Recommendation */}
+      {forecast.length > 0 && (
+        <div className="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-4 mt-4">
+          <h3 className="font-bold text-green-800 text-sm">Smart Watering Recommendation</h3>
+          <p className="text-green-700 mt-1">
+            {forecast[0].rainChance > 60
+              ? "Rain is expected tomorrow. Reduce watering to avoid overwatering."
+              : forecast[0].temp > 35
+              ? "Hot weather expected. Increase watering to keep plants hydrated."
+              : currentWeather?.humidity < 30
+              ? "Low humidity detected. Consider increasing watering slightly."
+              : "Weather conditions are normal. Maintain your regular watering schedule."
+            }
+          </p>
+        </div>
+      )}
+
         
       </div>
 

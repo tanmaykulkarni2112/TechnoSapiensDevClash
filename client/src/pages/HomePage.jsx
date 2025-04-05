@@ -3,7 +3,6 @@
 import AnalyticsDashboard from "../components/AnalyticsDashboard";
 import BottomNav from "../components/BottomNav";
 import Chatbot from "../components/Chatbot/Chatbot";
-import MapPreview from "../components/MapPreview";
 import TipOfTheDay from "../components/TipOfTheDay";
 import TopBar from "../components/TopBar";
 import WeatherWidget from "../components/WeatherWidget";
@@ -32,11 +31,6 @@ const HomePage = () => {
         {/* Weather Widget */}
         <div className="mb-6">
           <WeatherWidget />
-        </div>
-
-        {/* Map Preview */}
-        <div className="mb-6">
-          <MapPreview />
         </div>
 
         {/* Analytics Dashboard */}

@@ -37,7 +37,7 @@ const BottomNav = () => {
         }`}
       >
         <Cloud size={20} />
-        <span className="text-xs mt-1">Weather</span>
+        <span className="text-xs mt-1">News</span>
       </Link>
 
       <Link
