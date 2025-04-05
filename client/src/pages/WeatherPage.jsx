@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import TopBar from "../components/TopBar"
+import { useEffect, useState } from "react"
+import { Cloud, CloudRain, Droplet, Sun, Thermometer, Wind } from "react-feather"
 import BottomNav from "../components/BottomNav"
-import { Cloud, CloudRain, Sun, Wind, Droplet, Thermometer } from "react-feather"
+import Chatbot from "../components/Chatbot/Chatbot"
+import TopBar from "../components/TopBar"
 import { weatherService } from "../services/weatherService"
+
 
 const WeatherPage = () => {
   const [activeTab, setActiveTab] = useState("forecast")
@@ -261,7 +263,7 @@ const WeatherPage = () => {
           </p>
         </div>
       </main>
-
+      <Chatbot />
       <BottomNav />
     </div>
   )

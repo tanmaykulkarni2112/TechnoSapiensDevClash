@@ -4,6 +4,7 @@ import { useState } from "react"
 import TopBar from "../components/TopBar"
 import BottomNav from "../components/BottomNav"
 import { Camera, Upload, AlertTriangle, Check, Info } from "react-feather"
+import Chatbot from "../components/Chatbot/Chatbot"
 
 const DiseasePredictionPage = () => {
   const [activeTab, setActiveTab] = useState("scan")
@@ -311,6 +312,7 @@ const DiseasePredictionPage = () => {
         </div>
       </main>
 
+      <Chatbot/>
       <BottomNav />
     </div>
   )
