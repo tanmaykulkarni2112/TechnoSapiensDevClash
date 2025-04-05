@@ -4,9 +4,11 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 # Setup Flask
 app = Flask(__name__)
+CORS(app)
 
 # Configuration
 MODEL_PATH = 'best_model.pth'
@@ -74,4 +76,4 @@ def index():
     return jsonify({"message": "Plant Disease Classifier API. Use POST /predict with an image."})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5002)
