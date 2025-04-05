@@ -1,10 +1,8 @@
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import botIcon from '../../assets/chatbotimg.png';
 
-const LLAMA_API_URL = "https://openrouter.ai/api/v1/chat/completions"; // Replace with actual API URL
-const API_KEY = import.meta.env.VITE_LLAMA_API_KEY;
+
 
 
 export default function Chatbot() {
@@ -14,33 +12,67 @@ export default function Chatbot() {
     const [loading, setLoading] = useState(false);
     const chatRef = useRef(null);
 
+
+    // Initialize Gemini once
+    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+    console.log("API Key length:", API_KEY?.length);
+    
+    if (!API_KEY) {
+        console.error("No API key found in environment variables");
+    }
+
+    const genAI = new GoogleGenerativeAI(API_KEY);
+
+    // List available models on component mount
+    useEffect(() => {
+        const listModels = async () => {
+            try {
+                console.log("Listing available models...");
+                const models = await genAI.listModels();
+                console.log("Available models:", models);
+            } catch (error) {
+                console.error("Error listing models:", error);
+            }
+        };
+        
+        listModels();
+    }, []);
+
     const handleSend = async () => {
         if (!input.trim()) return;
         setMessages((prev) => [...prev, { from: "user", text: input }]);
         setInput("");
     
         try {
-            const response = await axios.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                {
-                    model: "meta-llama/3.1-405b", // ✅ Fixed model name
-                    messages: [{ role: "user", content: input }],
-                    temperature: 0.7,
-                    max_tokens: 500, // ✅ Ensure enough response length
-                },
-                {
-                    headers: {
-                        "Authorization": `Bearer ${API_KEY}`, // ✅ Use env variable
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": "localhost:5174", // ✅ Required header
-                        "X-Title": "krishi_sevak", // ✅ Add your project name
-                    }
-                }
-            );
-    
-            setMessages((prev) => [...prev, { from: "bot", text: response.data.choices[0].message.content }]);
+
+            console.log('Using gemini-1.5-pro model...');
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+            const result = await model.generateContent(input);
+            const response = await result.response;
+            const text = response.text();
+            
+            setMessages((prev) => [...prev, { from: "bot", text: text || "No response." }]);
         } catch (error) {
-            console.error("Llama API Error:", error);
+            console.error("Error talking to Gemini:", error);
+            let errorMessage = "Oops, something went wrong! 😵";
+            
+            if (error.message.includes("API key not valid")) {
+                errorMessage = "API key error. Please check your configuration.";
+            } else if (error.message.includes("quota")) {
+                errorMessage = "API quota exceeded. Please try again later.";
+            } else if (error.message.includes("not found")) {
+                errorMessage = "Model not found. Please check your API configuration.";
+            }
+            
+            setMessages((prev) => [...prev, { from: "bot", text: errorMessage }]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !loading) {
+            handleSend();
         }
     };
     

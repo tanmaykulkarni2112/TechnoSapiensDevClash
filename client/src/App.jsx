@@ -8,6 +8,8 @@ import LoginPage from "./pages/LoginPage"
 import ProfilePage from "./pages/ProfilePage"
 import SignupPage from "./pages/SignupPage"
 import WeatherPage from "./pages/WeatherPage"
+// import MapPage from "./pages/MapPage"
+
 
 function App() {
   return (
@@ -41,7 +43,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+          {/* <Route
+            path="/map"
+            element={
+              <ProtectedRoute>
+                <MapPage />
+              </ProtectedRoute>
+            }
+          /> */}
           <Route
             path="/profile"
             element={

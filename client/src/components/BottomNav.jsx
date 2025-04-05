@@ -1,4 +1,4 @@
-import { Activity, Cloud, Home, User } from "react-feather"
+import { Activity, Cloud, Home, User, Map } from "react-feather"
 import { Link, useLocation } from "react-router-dom"
 
 const BottomNav = () => {
@@ -29,14 +29,13 @@ const BottomNav = () => {
             </Link>
 
             {/* <Link
-        to="/map"
-        className={`flex flex-col items-center justify-center w-full h-full ${
-          isActive("/map") ? "text-green-600" : "text-gray-500"
-        }`}
-      >
-        <Map size={20} />
-        <span className="text-xs mt-1">Map</span>
-      </Link> */}
+                to="/map"
+                className={`flex flex-col items-center justify-center w-full h-full ${isActive("/map") ? "text-green-600" : "text-gray-500"
+                    }`}
+            >
+                <Map size={20} />
+                <span className="text-xs mt-1">Map</span>
+            </Link> */}
 
 
             <Link
