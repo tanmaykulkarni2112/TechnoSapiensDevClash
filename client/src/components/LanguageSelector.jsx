@@ -37,7 +37,7 @@ const LanguageSelector = ({ textKeys, setTranslatedText }) => {
       value={selectedLanguage}
       onChange={handleLanguageChange}
       disabled={loading}
-      className="p-2 border rounded"
+      className="w-30 p-1 text-sm border border-gray-300 rounded bg-transparent text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
     >
       <option value="en">English</option>
       <option value="hi">हिन्दी (Hindi)</option>
@@ -47,7 +47,7 @@ const LanguageSelector = ({ textKeys, setTranslatedText }) => {
       <option value="ta">தமிழ் (Tamil)</option>
       <option value="gu">ગુજરાતી (Gujarati)</option>
     </select>
-  );
+  );  
 };
 
 export default LanguageSelector;
