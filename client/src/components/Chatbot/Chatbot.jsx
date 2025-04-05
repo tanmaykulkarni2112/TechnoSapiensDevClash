@@ -1,9 +1,7 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import botIcon from '../../assets/chatbotimg.png';
-
-
-
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +9,6 @@ export default function Chatbot() {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const chatRef = useRef(null);
-
 
     // Initialize Gemini once
     const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -40,11 +37,13 @@ export default function Chatbot() {
 
     const handleSend = async () => {
         if (!input.trim()) return;
-        setMessages((prev) => [...prev, { from: "user", text: input }]);
-        setInput("");
-    
-        try {
 
+        const userMessage = { from: "user", text: input };
+        setMessages((prev) => [...prev, userMessage]);
+        setInput("");
+        setLoading(true);
+
+        try {
             console.log('Using gemini-1.5-pro model...');
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
             const result = await model.generateContent(input);
@@ -75,9 +74,7 @@ export default function Chatbot() {
             handleSend();
         }
     };
-    
 
-    // Close chatbot when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (chatRef.current && !chatRef.current.contains(event.target)) {
@@ -89,41 +86,85 @@ export default function Chatbot() {
         } else {
             document.removeEventListener("mousedown", handleClickOutside);
         }
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, [isOpen]);
+
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     return (
         <>
             {/* Chat Toggle Button */}
             <div className="fixed bottom-24 right-6 z-50">
-                <button className="bg-white p-2 rounded-full shadow-lg hover:scale-105 transition" onClick={() => setIsOpen(!isOpen)}>
+                <button
+                    className="bg-white p-2 rounded-full shadow-lg hover:scale-105 transition-transform"
+                    onClick={() => setIsOpen(!isOpen)}
+                >
                     <img src={botIcon} alt="Chatbot Icon" className="w-12 h-12 object-contain" />
                 </button>
             </div>
 
             {/* Chat Window */}
             {isOpen && (
-                <div ref={chatRef} className="fixed bottom-20 right-6 w-80 h-96 bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50">
+                <div
+                    ref={chatRef}
+                    className="fixed bottom-20 right-6 w-80 h-96 bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50"
+                >
                     {/* Header */}
                     <div className="bg-blue-600 text-white p-4 font-bold flex items-center justify-between">
                         <span>AgriBot 🌾</span>
-                        <button onClick={() => setIsOpen(false)} className="text-white hover:text-gray-300 text-2xl leading-none">×</button>
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="text-white hover:text-gray-300 text-2xl leading-none"
+                        >
+                            ×
+                        </button>
                     </div>
 
                     {/* Messages */}
                     <div className="flex-1 p-4 space-y-2 overflow-y-auto">
                         {messages.map((msg, index) => (
-                            <div key={index} className={`p-2 rounded-lg max-w-xs ${msg.from === "user" ? "bg-blue-100 self-end" : "bg-gray-100 self-start"}`}>
-                                {msg.text}
+                            <div key={index} className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
+                                <div
+                                    className={`px-4 py-2 rounded-lg max-w-[70%] ${msg.from === "user"
+                                            ? "bg-blue-500 text-white rounded-br-none"
+                                            : "bg-gray-200 text-gray-800 rounded-bl-none"
+                                        }`}
+                                >
+                                    {msg.text}
+                                </div>
                             </div>
                         ))}
-                        {loading && <div className="p-2 bg-gray-200 rounded-lg max-w-xs self-start">Thinking...</div>}
+                        {loading && (
+                            <div className="flex justify-start">
+                                <div className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 max-w-[70%] animate-pulse">
+                                    Typing...
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Input */}
-                    <div className="flex p-2 border-t">
-                        <input type="text" className="flex-1 border rounded-l-lg p-2 focus:outline-none" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ask me anything..." />
-                        <button className="bg-blue-600 text-white p-2 rounded-r-lg hover:bg-blue-700 transition" onClick={handleSend}>
+                    <div className="p-4 flex items-center gap-2 border-t">
+                        <input
+                            type="text"
+                            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-300"
+                            placeholder="Type your question..."
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            disabled={loading}
+                        />
+                        <button
+                            onClick={handleSend}
+                            disabled={loading}
+                            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50"
+                        >
                             <Send size={20} />
                         </button>
                     </div>
