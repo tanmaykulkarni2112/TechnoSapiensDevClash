@@ -4,9 +4,10 @@ import { useAuth } from "../context/AuthContext"
 import TopBar from "../components/TopBar"
 import BottomNav from "../components/BottomNav"
 import WeatherWidget from "../components/WeatherWidget"
-import MapPreview from "../components/MapPreview"
 import AnalyticsDashboard from "../components/AnalyticsDashboard"
 import TipOfTheDay from "../components/TipOfTheDay"
+import NewsSection from "../components/NewsSection"
+import GreenCalendar from "../components/GreenCalendar"
 
 const HomePage = () => {
   const { currentUser } = useAuth()
@@ -29,15 +30,22 @@ const HomePage = () => {
           <WeatherWidget />
         </div>
 
-        {/* Map Preview */}
-        <div className="mb-6">
-          <MapPreview />
-        </div>
-
         {/* Analytics Dashboard */}
         <div className="mb-6">
           <h3 className="font-bold text-gray-800 mb-3">Farm Analytics</h3>
           <AnalyticsDashboard />
+        </div>
+
+        {/* News Section */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-3">Agricultural News</h3>
+          <NewsSection />
+        </div>
+
+        {/* Farming Calendar */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-800 mb-3">Farming Calendar</h3>
+          <GreenCalendar />
         </div>
 
         {/* Tip of the Day */}

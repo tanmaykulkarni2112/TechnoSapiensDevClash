@@ -5,7 +5,8 @@ export const weatherService = {
   async getCurrentWeather(lat, lon, apiKey) {
     const response = await fetch(
       `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
-    );
+    ); 
+    
     if (!response.ok) throw new Error('Failed to fetch current weather');
     return response.json();
   },

@@ -1,13 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { AuthProvider } from "./context/AuthContext"
+import DiseasePredictionPage from "./pages/DiseasePredictionPage"
+import HomePage from "./pages/HomePage"
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
-import SignupPage from "./pages/SignupPage"
-import HomePage from "./pages/HomePage"
-import WeatherPage from "./pages/WeatherPage"
-import DiseasePredictionPage from "./pages/DiseasePredictionPage"
 import ProfilePage from "./pages/ProfilePage"
-import { AuthProvider } from "./context/AuthContext"
-import ProtectedRoute from "./components/ProtectedRoute"
+import SignupPage from "./pages/SignupPage"
+import WeatherPage from "./pages/WeatherPage"
 
 function App() {
   return (
@@ -41,6 +41,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
           <Route
             path="/profile"
             element={

@@ -6,10 +6,12 @@ import { useAuth } from "../context/AuthContext"
 import { Link } from "react-router-dom"
 import LanguageSelector from "./LanguageSelector"
 
-const TopBar = ({ title }) => {
+const TopBar = ({ title, textKeys, setTranslatedText }) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const { currentUser, logout } = useAuth()
+
+  
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen)
@@ -33,7 +35,7 @@ const TopBar = ({ title }) => {
   ]
 
   return (
-    <div className="relative">
+    <div className="relative ">
       <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center shadow-md">
         <button onClick={toggleMenu} className="p-2 rounded-full hover:bg-green-700 transition-colors duration-200">
           <Menu size={24} />
@@ -52,15 +54,16 @@ const TopBar = ({ title }) => {
             </span>
           </button>
 
-          <LanguageSelector />
+          <LanguageSelector textKeys={textKeys} setTranslatedText={setTranslatedText} />
+
         </div>
       </div>
 
       {/* Sidebar Menu */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="bg-black bg-opacity-50 flex-1" onClick={toggleMenu}></div>
-          <div className="bg-white w-64 shadow-lg flex flex-col h-full">
+          <div className="bg-black opacity-10 flex-1" onClick={toggleMenu}></div>
+          <div className="bg-white w-64 shadow-lg flex flex-col h-full absolute left-0">
             <div className="p-4 border-b flex justify-between items-center">
               <h2 className="font-bold text-xl text-green-700">Menu</h2>
               <button onClick={toggleMenu} className="p-1">
