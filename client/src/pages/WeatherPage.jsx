@@ -1,131 +1,86 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import TopBar from "../components/TopBar"
 import BottomNav from "../components/BottomNav"
 import { Cloud, CloudRain, Sun, Wind, Droplet, Thermometer } from "react-feather"
+import { weatherService } from "../services/weatherService"
 
 const WeatherPage = () => {
   const [activeTab, setActiveTab] = useState("forecast")
+  const [currentWeather, setCurrentWeather] = useState(null)
+  const [forecast, setForecast] = useState([])
+  const [hourlyForecast, setHourlyForecast] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Mock weather data - in a real app, this would come from an API
-  const currentWeather = {
-    temperature: 28,
-    feelsLike: 30,
-    condition: "Sunny",
-    rainChance: 10,
-    windSpeed: 12,
-    humidity: 65,
-    pressure: 1012,
-    visibility: 10,
-    uvIndex: 7,
-  }
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
-  // Mock forecast data
-  const forecast = [
-    {
-      day: "Today",
-      date: "Apr 5",
-      high: 28,
-      low: 22,
-      condition: "Sunny",
-      rainChance: 10,
-      windSpeed: 12,
-      humidity: 65,
-    },
-    {
-      day: "Tomorrow",
-      date: "Apr 6",
-      high: 27,
-      low: 21,
-      condition: "Partly Cloudy",
-      rainChance: 20,
-      windSpeed: 10,
-      humidity: 70,
-    },
-    {
-      day: "Wednesday",
-      date: "Apr 7",
-      high: 25,
-      low: 20,
-      condition: "Cloudy",
-      rainChance: 40,
-      windSpeed: 15,
-      humidity: 75,
-    },
-    {
-      day: "Thursday",
-      date: "Apr 8",
-      high: 24,
-      low: 19,
-      condition: "Rain",
-      rainChance: 80,
-      windSpeed: 18,
-      humidity: 85,
-    },
-    {
-      day: "Friday",
-      date: "Apr 9",
-      high: 26,
-      low: 20,
-      condition: "Partly Cloudy",
-      rainChance: 30,
-      windSpeed: 14,
-      humidity: 70,
-    },
-    {
-      day: "Saturday",
-      date: "Apr 10",
-      high: 29,
-      low: 23,
-      condition: "Sunny",
-      rainChance: 5,
-      windSpeed: 8,
-      humidity: 60,
-    },
-    {
-      day: "Sunday",
-      date: "Apr 11",
-      high: 30,
-      low: 24,
-      condition: "Sunny",
-      rainChance: 0,
-      windSpeed: 6,
-      humidity: 55,
-    },
-  ]
+          // Fetch current weather
+          const weatherData = await weatherService.getCurrentWeather(latitude, longitude, apiKey);
+          setCurrentWeather({
+            temperature: Math.round(weatherData.main.temp),
+            feelsLike: Math.round(weatherData.main.feels_like),
+            condition: weatherService.mapCondition(weatherData.weather[0]),
+            rainChance: Math.round(weatherData.clouds.all),
+            windSpeed: Math.round(weatherData.wind.speed * 3.6),
+            humidity: weatherData.main.humidity,
+            pressure: weatherData.main.pressure,
+            visibility: Math.round(weatherData.visibility / 1000),
+            uvIndex: 0 // OpenWeather doesn't provide UV index in basic API
+          });
 
-  // Mock hourly forecast
-  const hourlyForecast = [
-    { time: "Now", temp: 28, condition: "Sunny", rainChance: 10 },
-    { time: "1 PM", temp: 29, condition: "Sunny", rainChance: 10 },
-    { time: "2 PM", temp: 29, condition: "Sunny", rainChance: 10 },
-    { time: "3 PM", temp: 28, condition: "Sunny", rainChance: 10 },
-    { time: "4 PM", temp: 27, condition: "Partly Cloudy", rainChance: 15 },
-    { time: "5 PM", temp: 26, condition: "Partly Cloudy", rainChance: 20 },
-    { time: "6 PM", temp: 25, condition: "Partly Cloudy", rainChance: 20 },
-    { time: "7 PM", temp: 24, condition: "Partly Cloudy", rainChance: 15 },
-    { time: "8 PM", temp: 23, condition: "Clear", rainChance: 5 },
-  ]
+          // Fetch forecast
+          const forecastData = await weatherService.getForecast(latitude, longitude, apiKey);
+          
+          // Process daily forecast
+          const dailyForecasts = forecastData.list
+            .filter((item, index) => index % 8 === 0) // Get one reading per day
+            .slice(0, 7) // Get 7 days
+            .map(item => ({
+              day: new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'long' }),
+              date: new Date(item.dt * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+              high: Math.round(item.main.temp_max),
+              low: Math.round(item.main.temp_min),
+              condition: weatherService.mapCondition(item.weather[0]),
+              rainChance: Math.round(item.clouds.all),
+              windSpeed: Math.round(item.wind.speed * 3.6),
+              humidity: item.main.humidity
+            }));
+          setForecast(dailyForecasts);
 
-  // Mock rainfall data
-  const rainfallData = [
-    { month: "Jan", amount: 45 },
-    { month: "Feb", amount: 60 },
-    { month: "Mar", amount: 75 },
-    { month: "Apr", amount: 90 },
-    { month: "May", amount: 120 },
-    { month: "Jun", amount: 150 },
-    { month: "Jul", amount: 180 },
-    { month: "Aug", amount: 160 },
-    { month: "Sep", amount: 130 },
-    { month: "Oct", amount: 100 },
-    { month: "Nov", amount: 70 },
-    { month: "Dec", amount: 50 },
-  ]
+          // Process hourly forecast (next 24 hours)
+          const hourlyForecasts = forecastData.list
+            .slice(0, 8) // Get next 24 hours (3-hour intervals)
+            .map(item => ({
+              time: new Date(item.dt * 1000).toLocaleTimeString('en-US', { hour: 'numeric' }),
+              temp: Math.round(item.main.temp),
+              condition: weatherService.mapCondition(item.weather[0]),
+              rainChance: Math.round(item.clouds.all)
+            }));
+          setHourlyForecast(hourlyForecasts);
+
+          setLoading(false);
+        }, (err) => {
+          setError("Please enable location services to get weather information");
+          setLoading(false);
+        });
+      } catch (err) {
+        setError("Failed to fetch weather data");
+        setLoading(false);
+      }
+    };
+
+    fetchWeatherData();
+  }, []);
 
   const getWeatherIcon = (condition, size = 24) => {
-    switch (condition.toLowerCase()) {
+    switch (condition?.toLowerCase()) {
       case "sunny":
       case "clear":
         return <Sun className="text-yellow-500" size={size} />
@@ -140,6 +95,34 @@ const WeatherPage = () => {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pb-16">
+        <TopBar title="Weather" />
+        <main className="container mx-auto px-4 py-6">
+          <div className="bg-white rounded-xl shadow-md p-8 text-center">
+            <p>Loading weather data...</p>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 pb-16">
+        <TopBar title="Weather" />
+        <main className="container mx-auto px-4 py-6">
+          <div className="bg-white rounded-xl shadow-md p-8 text-center">
+            <p className="text-red-500">{error}</p>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <TopBar title="Weather" />
@@ -149,60 +132,57 @@ const WeatherPage = () => {
         <div className="bg-white rounded-xl shadow-md p-5 mb-6">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">Your Location</h2>
-              <p className="text-gray-500">Updated just now</p>
-            </div>
-            {getWeatherIcon(currentWeather.condition, 36)}
-          </div>
-
-          <div className="mt-4 flex items-end">
-            <div className="text-5xl font-bold text-gray-800">{currentWeather.temperature}°</div>
-            <div className="ml-2 text-gray-600">Feels like {currentWeather.feelsLike}°</div>
-          </div>
-
-          <div className="mt-2 text-lg text-gray-700">{currentWeather.condition}</div>
-
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="flex items-center">
-              <CloudRain size={18} className="text-blue-500 mr-2" />
-              <div>
-                <div className="text-sm text-gray-500">Chance of Rain</div>
-                <div className="font-medium">{currentWeather.rainChance}%</div>
+              <div className="flex items-center">
+                {getWeatherIcon(currentWeather?.condition, 32)}
+                <div className="ml-3">
+                  <div className="text-4xl font-bold text-gray-800">{currentWeather?.temperature}°C</div>
+                  <div className="text-gray-600">{currentWeather?.condition}</div>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                Feels like {currentWeather?.feelsLike}°C
               </div>
             </div>
 
-            <div className="flex items-center">
-              <Wind size={18} className="text-gray-500 mr-2" />
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <div className="text-sm text-gray-500">Wind Speed</div>
-                <div className="font-medium">{currentWeather.windSpeed} km/h</div>
+                <div className="flex items-center text-gray-600">
+                  <CloudRain size={16} className="mr-1" />
+                  Rain
+                </div>
+                <div className="font-medium">{currentWeather?.rainChance}%</div>
               </div>
-            </div>
-
-            <div className="flex items-center">
-              <Droplet size={18} className="text-blue-500 mr-2" />
               <div>
-                <div className="text-sm text-gray-500">Humidity</div>
-                <div className="font-medium">{currentWeather.humidity}%</div>
+                <div className="flex items-center text-gray-600">
+                  <Wind size={16} className="mr-1" />
+                  Wind
+                </div>
+                <div className="font-medium">{currentWeather?.windSpeed} km/h</div>
               </div>
-            </div>
-
-            <div className="flex items-center">
-              <Thermometer size={18} className="text-red-500 mr-2" />
               <div>
-                <div className="text-sm text-gray-500">UV Index</div>
-                <div className="font-medium">{currentWeather.uvIndex} (High)</div>
+                <div className="flex items-center text-gray-600">
+                  <Droplet size={16} className="mr-1" />
+                  Humidity
+                </div>
+                <div className="font-medium">{currentWeather?.humidity}%</div>
+              </div>
+              <div>
+                <div className="flex items-center text-gray-600">
+                  <Thermometer size={16} className="mr-1" />
+                  Pressure
+                </div>
+                <div className="font-medium">{currentWeather?.pressure} hPa</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Forecast Tabs */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
           <div className="flex border-b">
             <button
               onClick={() => setActiveTab("forecast")}
-              className={`flex-1 py-3 text-center font-medium ${
+              className={`flex-1 py-3 text-sm font-medium ${
                 activeTab === "forecast" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500"
               }`}
             >
@@ -210,19 +190,11 @@ const WeatherPage = () => {
             </button>
             <button
               onClick={() => setActiveTab("hourly")}
-              className={`flex-1 py-3 text-center font-medium ${
+              className={`flex-1 py-3 text-sm font-medium ${
                 activeTab === "hourly" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500"
               }`}
             >
               Hourly
-            </button>
-            <button
-              onClick={() => setActiveTab("rainfall")}
-              className={`flex-1 py-3 text-center font-medium ${
-                activeTab === "rainfall" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500"
-              }`}
-            >
-              Rainfall
             </button>
           </div>
 
@@ -274,27 +246,6 @@ const WeatherPage = () => {
                 </div>
               </div>
             )}
-
-            {activeTab === "rainfall" && (
-              <div>
-                <h3 className="font-medium mb-4">Annual Rainfall (mm)</h3>
-                <div className="h-40 flex items-end space-x-1">
-                  {rainfallData.map((month, index) => (
-                    <div key={index} className="flex flex-col items-center flex-1">
-                      <div
-                        className="w-full bg-blue-500 rounded-t"
-                        style={{ height: `${(month.amount / 180) * 100}%` }}
-                      ></div>
-                      <div className="text-xs mt-1 text-gray-600">{month.month}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 text-sm text-gray-600">
-                  <p>Total Annual Rainfall: 1,230 mm</p>
-                  <p className="mt-1">Current Month: 90 mm (30% above average)</p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -302,8 +253,11 @@ const WeatherPage = () => {
         <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-4">
           <h3 className="font-bold text-blue-800 text-sm">Weather Advisory</h3>
           <p className="text-blue-700 mt-1">
-            Ideal conditions for planting wheat and barley in the coming week. Consider scheduling irrigation for
-            Thursday due to expected rainfall.
+            {currentWeather?.rainChance > 50 
+              ? "High chance of rain. Consider adjusting your farming schedule."
+              : currentWeather?.windSpeed > 20
+              ? "Strong winds expected. Take necessary precautions for your crops."
+              : "Weather conditions look favorable for farming activities."}
           </p>
         </div>
       </main>

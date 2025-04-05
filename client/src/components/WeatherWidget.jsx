@@ -1,33 +1,61 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sun, Cloud, CloudRain, Wind } from "react-feather"
+import { weatherService } from "../services/weatherService"
 
 const WeatherWidget = () => {
   const [showForecast, setShowForecast] = useState(false)
+  const [currentWeather, setCurrentWeather] = useState(null)
+  const [forecast, setForecast] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Mock weather data - in a real app, this would come from an API
-  const currentWeather = {
-    temperature: 28,
-    condition: "Sunny",
-    rainChance: 10,
-    windSpeed: 12,
-    humidity: 65,
-  }
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        // Use navigator.geolocation to get user's location
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
-  // Mock forecast data
-  const forecast = [
-    { day: "Mon", temp: 28, condition: "Sunny" },
-    { day: "Tue", temp: 27, condition: "Partly Cloudy" },
-    { day: "Wed", temp: 25, condition: "Cloudy" },
-    { day: "Thu", temp: 24, condition: "Rain" },
-    { day: "Fri", temp: 26, condition: "Partly Cloudy" },
-    { day: "Sat", temp: 29, condition: "Sunny" },
-    { day: "Sun", temp: 30, condition: "Sunny" },
-  ]
+          // Fetch current weather
+          const weatherData = await weatherService.getCurrentWeather(latitude, longitude, apiKey);
+          setCurrentWeather({
+            temperature: Math.round(weatherData.main.temp),
+            condition: weatherService.mapCondition(weatherData.weather[0]),
+            rainChance: Math.round(weatherData.clouds.all), // Using clouds as proxy for rain chance
+            windSpeed: Math.round(weatherData.wind.speed * 3.6), // Convert m/s to km/h
+            humidity: weatherData.main.humidity
+          });
+
+          // Fetch forecast
+          const forecastData = await weatherService.getForecast(latitude, longitude, apiKey);
+          const dailyForecasts = forecastData.list
+            .filter((item, index) => index % 8 === 0) // Get one reading per day
+            .slice(0, 7) // Get 7 days
+            .map(item => ({
+              day: new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
+              temp: Math.round(item.main.temp),
+              condition: weatherService.mapCondition(item.weather[0])
+            }));
+          setForecast(dailyForecasts);
+          setLoading(false);
+        }, (err) => {
+          setError("Please enable location services to get weather information");
+          setLoading(false);
+        });
+      } catch (err) {
+        setError("Failed to fetch weather data");
+        setLoading(false);
+      }
+    };
+
+    fetchWeatherData();
+  }, []);
 
   const getWeatherIcon = (condition) => {
-    switch (condition.toLowerCase()) {
+    switch (condition?.toLowerCase()) {
       case "sunny":
         return <Sun className="text-yellow-500" size={24} />
       case "partly cloudy":
@@ -45,6 +73,22 @@ const WeatherWidget = () => {
     setShowForecast(!showForecast)
   }
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-md p-8 text-center">
+        <p>Loading weather data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-xl shadow-md p-8 text-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
       <div className="p-4">
@@ -55,21 +99,21 @@ const WeatherWidget = () => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {getWeatherIcon(currentWeather.condition)}
+            {getWeatherIcon(currentWeather?.condition)}
             <div className="ml-3">
-              <div className="text-3xl font-bold text-gray-800">{currentWeather.temperature}°C</div>
-              <div className="text-gray-600">{currentWeather.condition}</div>
+              <div className="text-3xl font-bold text-gray-800">{currentWeather?.temperature}°C</div>
+              <div className="text-gray-600">{currentWeather?.condition}</div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-2">
             <div className="flex items-center">
               <CloudRain size={16} className="text-blue-500 mr-2" />
-              <span className="text-sm text-gray-600">{currentWeather.rainChance}%</span>
+              <span className="text-sm text-gray-600">{currentWeather?.rainChance}%</span>
             </div>
             <div className="flex items-center">
               <Wind size={16} className="text-gray-500 mr-2" />
-              <span className="text-sm text-gray-600">{currentWeather.windSpeed} km/h</span>
+              <span className="text-sm text-gray-600">{currentWeather?.windSpeed} km/h</span>
             </div>
           </div>
         </div>
@@ -82,7 +126,7 @@ const WeatherWidget = () => {
         </button>
       </div>
 
-      {showForecast && (
+      {showForecast && forecast.length > 0 && (
         <div className="bg-green-50 p-4 overflow-x-auto">
           <div className="flex space-x-4 min-w-max">
             {forecast.map((day) => (
@@ -100,4 +144,3 @@ const WeatherWidget = () => {
 }
 
 export default WeatherWidget
-
