@@ -118,12 +118,7 @@ const WeatherWidget = () => {
           </div>
         </div>
 
-        <button
-          onClick={toggleForecast}
-          className="mt-4 w-full py-2 bg-green-50 text-green-700 rounded-lg font-medium text-sm hover:bg-green-100 transition-colors duration-200"
-        >
-          {showForecast ? "Hide" : "View"} 7-Day Forecast
-        </button>
+        
       </div>
 
       {showForecast && forecast.length > 0 && (
