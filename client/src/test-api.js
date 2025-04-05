@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Get API key from environment variables
-const API_KEY = process.env.VITE_GEMINI_API_KEY || "AIzaSyA4VC2pzB7gS3VW96npOVYjTYbsazkaaOw";
+const API_KEY = process.env.VITE_GEMINI_API_KEY ;
 
 async function testApiKey() {
   try {
