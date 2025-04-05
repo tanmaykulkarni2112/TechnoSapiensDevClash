@@ -8,6 +8,7 @@ const SignUpPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email:"",
     password: "",
     confirmPassword: "",
     language: "en",
@@ -16,12 +17,7 @@ const SignUpPage = () => {
   const { signup } = useAuth()
   const navigate = useNavigate()
 
-  const languages = [
-    { value: "en", label: "English" },
-    { value: "es", label: "Español" },
-    { value: "fr", label: "Français" },
-    { value: "hi", label: "हिन्दी" },
-  ]
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -33,7 +29,7 @@ const SignUpPage = () => {
     setError("")
 
      // Basic validation
-     if (!formData.name || !formData.phone || !formData.password) {
+     if (!formData.name || !formData.phone || !formData.password || !formData.confirmPassword || !formData.email || !formData.location) {
       setError("Please fill in all required fields")
       return
     }
@@ -58,6 +54,7 @@ const SignUpPage = () => {
     nameLabel: "Full Name",
     emailLabel: "Email Address",
     phoneLabel: "Phone Number",
+    locationLabel: "Location",
     passwordLabel: "Password",
     confirmPasswordLabel: "Confirm Password",
     signupButton: "Sign Up",
@@ -95,6 +92,11 @@ const SignUpPage = () => {
             <div>
               <label className="block text-gray-700 text-sm font-medium mb-2">{translatedText.phoneLabel}</label>
               <input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" placeholder="Enter phone number" />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{translatedText.locationLabel}</label>
+              <input id="location" name="location" type="text" required value={formData.location} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" placeholder="Enter your location" />
             </div>
 
             <div>

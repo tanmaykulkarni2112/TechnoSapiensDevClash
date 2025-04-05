@@ -6,10 +6,12 @@ import { useAuth } from "../context/AuthContext"
 import { Link } from "react-router-dom"
 import LanguageSelector from "./LanguageSelector"
 
-const TopBar = ({ title }) => {
+const TopBar = ({ title, textKeys, setTranslatedText }) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const { currentUser, logout } = useAuth()
+
+  
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen)
@@ -52,7 +54,8 @@ const TopBar = ({ title }) => {
             </span>
           </button>
 
-          <LanguageSelector />
+          <LanguageSelector textKeys={textKeys} setTranslatedText={setTranslatedText} />
+
         </div>
       </div>
 

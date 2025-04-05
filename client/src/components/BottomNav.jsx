@@ -31,6 +31,16 @@ const BottomNav = () => {
       </Link>
 
       <Link
+        to="/news"
+        className={`flex flex-col items-center justify-center w-full h-full ${
+          isActive("/weather") ? "text-green-600" : "text-gray-500"
+        }`}
+      >
+        <Cloud size={20} />
+        <span className="text-xs mt-1">Weather</span>
+      </Link>
+
+      <Link
         to="/disease-prediction"
         className={`flex flex-col items-center justify-center w-full h-full ${
           isActive("/disease-prediction") ? "text-green-600" : "text-gray-500"

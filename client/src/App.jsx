@@ -8,6 +8,7 @@ import DiseasePredictionPage from "./pages/DiseasePredictionPage"
 import ProfilePage from "./pages/ProfilePage"
 import { AuthProvider } from "./context/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
+import NewsPage from "./pages/NewsPage"
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DiseasePredictionPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/news"
+            element={
+              <ProtectedRoute>
+                <NewsPage />
               </ProtectedRoute>
             }
           />

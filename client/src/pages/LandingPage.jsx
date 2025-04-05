@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import landingImg from "../assets/landing.jpg";
 import LanguageSelector from "../components/LanguageSelector";
 
 const LandingPage = () => {
@@ -19,7 +20,13 @@ const LandingPage = () => {
   return (
     <div className="relative min-h-screen flex flex-col">
       {/* Background */}
-      <div className="absolute inset-0 bg-cover bg-red-900 bg-center z-0"></div>
+      <div className="absolute inset-0 bg-cover bg-center z-0" 
+      style={{
+        backgroundImage: `url(${landingImg})`,
+        filter: "brightness(0.7)",
+      }}
+      ></div>
+      
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col">
