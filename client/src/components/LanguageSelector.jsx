@@ -37,7 +37,7 @@ const LanguageSelector = ({ textKeys, setTranslatedText }) => {
       value={selectedLanguage}
       onChange={handleLanguageChange}
       disabled={loading}
-      className="p-2 border rounded"
+      className="p-2 border rounded text-gray-600"
     >
       <option value="en">English</option>
       <option value="hi">हिन्दी (Hindi)</option>
