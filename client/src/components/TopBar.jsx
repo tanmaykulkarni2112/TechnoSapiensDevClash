@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, Bell, X } from "react-feather"
-import { useAuth } from "../context/AuthContext"
+import { Bell, Menu, X } from "react-feather"
 import { Link } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 import LanguageSelector from "./LanguageSelector"
 
 const TopBar = ({ title, textKeys, setTranslatedText }) => {

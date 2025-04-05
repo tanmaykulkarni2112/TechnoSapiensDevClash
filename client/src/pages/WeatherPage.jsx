@@ -167,7 +167,7 @@ const WeatherPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 pb-16">
-        <TopBar title="Weather & Water" />
+        <TopBar title="Weather" />
         <main className="container mx-auto px-4 py-6">
           <div className="bg-white rounded-xl shadow-md p-8 flex justify-center items-center">
             <div className="text-center">
