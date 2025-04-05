@@ -9,8 +9,8 @@ import Chatbot from "../components/Chatbot/Chatbot"
 const DiseasePredictionPage = () => {
   const [activeTab, setActiveTab] = useState("scan")
   const [scanResult, setScanResult] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
 
-  // Mock disease data
   const recentScans = [
     {
       id: 1,
@@ -71,36 +71,48 @@ const DiseasePredictionPage = () => {
     },
   ]
 
-  const handleScan = () => {
-    // Simulate a scan result
-    setScanResult({
-      crop: "Wheat",
-      result: "Healthy",
-      confidence: 98,
-      status: "healthy",
-      recommendations: [
-        "Continue regular monitoring",
-        "Maintain current irrigation schedule",
-        "No treatment needed at this time",
-      ],
-    })
+  const handleUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setSelectedFile(file)
+      setScanResult(null)
+    }
   }
 
-  const handleUpload = (e) => {
-    e.preventDefault()
-    // Simulate processing an uploaded image
-    setScanResult({
-      crop: "Tomato",
-      result: "Early Blight",
-      confidence: 87,
-      status: "diseased",
-      recommendations: [
-        "Apply copper-based fungicide",
-        "Remove and destroy affected leaves",
-        "Improve air circulation around plants",
-        "Avoid overhead watering",
-      ],
-    })
+  const givePrediction = async () => {
+    if (!selectedFile) {
+      alert("Please upload an image first.")
+      return
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append("image", selectedFile)
+
+      const response = await fetch("http://localhost:5002/predict", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (data.predicted_class) {
+        setScanResult({
+          crop: data.crop || "Unknown Crop",
+          result: data.predicted_class,
+          confidence: data.confidence * 100 || 90,
+          status: data.status || "diseased",
+          recommendations: data.recommendations || [
+            "Consult an expert for treatment advice.",
+          ],
+        })
+      } else {
+        alert("No prediction received.")
+      }
+    } catch (error) {
+      console.error("Prediction failed:", error)
+      alert("Failed to get prediction.")
+    }
   }
 
   return (
@@ -111,30 +123,19 @@ const DiseasePredictionPage = () => {
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
           <div className="flex border-b">
-            <button
-              onClick={() => setActiveTab("scan")}
-              className={`flex-1 py-3 text-center font-medium ${
-                activeTab === "scan" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500"
-              }`}
-            >
-              Scan
-            </button>
-            <button
-              onClick={() => setActiveTab("history")}
-              className={`flex-1 py-3 text-center font-medium ${
-                activeTab === "history" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500"
-              }`}
-            >
-              History
-            </button>
-            <button
-              onClick={() => setActiveTab("library")}
-              className={`flex-1 py-3 text-center font-medium ${
-                activeTab === "library" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500"
-              }`}
-            >
-              Library
-            </button>
+            {["scan", "history", "library"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-3 text-center font-medium ${
+                  activeTab === tab
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
 
           <div className="p-4">
@@ -146,13 +147,23 @@ const DiseasePredictionPage = () => {
                       Take a photo or upload an image of your crop to identify diseases
                     </p>
 
+                    {selectedFile && (
+                      <div className="text-center mb-4">
+                        <p className="text-sm text-gray-600 mb-2">Selected Image:</p>
+                        <img
+                          src={URL.createObjectURL(selectedFile)}
+                          alt="Preview"
+                          className="mx-auto max-h-48 rounded-md shadow"
+                        />
+                      </div>
+                    )}
+
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                       <button
-                        onClick={handleScan}
-                        className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                        onClick={givePrediction}
+                        className="flex items-center justify-center gap-2 bg-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors"
                       >
-                        <Camera size={20} />
-                        Take Photo
+                        Predict Disease
                       </button>
 
                       <label className="flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer">
@@ -177,7 +188,10 @@ const DiseasePredictionPage = () => {
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-bold text-lg">Scan Results</h3>
                       <button
-                        onClick={() => setScanResult(null)}
+                        onClick={() => {
+                          setScanResult(null)
+                          setSelectedFile(null)
+                        }}
                         className="text-sm text-green-600 hover:text-green-700"
                       >
                         New Scan
@@ -236,7 +250,6 @@ const DiseasePredictionPage = () => {
             {activeTab === "history" && (
               <div>
                 <h3 className="font-medium mb-4">Recent Scans</h3>
-
                 {recentScans.length > 0 ? (
                   <div className="space-y-4">
                     {recentScans.map((scan) => (
@@ -245,7 +258,6 @@ const DiseasePredictionPage = () => {
                           <div className="font-medium">{scan.crop}</div>
                           <div className="text-sm text-gray-500">{scan.date}</div>
                         </div>
-
                         <div className="p-3">
                           <div className="flex items-center mb-2">
                             <div
@@ -256,7 +268,6 @@ const DiseasePredictionPage = () => {
                             <div className="font-medium">{scan.result}</div>
                             <div className="ml-auto text-sm text-gray-600">Confidence: {scan.confidence}%</div>
                           </div>
-
                           {scan.status === "diseased" && (
                             <div className="mt-2 text-sm">
                               <div className="font-medium text-gray-700">Treatment:</div>
@@ -276,14 +287,12 @@ const DiseasePredictionPage = () => {
             {activeTab === "library" && (
               <div>
                 <h3 className="font-medium mb-4">Common Crop Diseases</h3>
-
                 <div className="space-y-4">
                   {commonDiseases.map((disease, index) => (
                     <div key={index} className="border rounded-lg overflow-hidden">
                       <div className="p-3 bg-gray-50 border-b font-medium">
                         {disease.name} <span className="text-sm text-gray-500">({disease.crop})</span>
                       </div>
-
                       <div className="p-3">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div className="sm:col-span-2">
@@ -291,13 +300,11 @@ const DiseasePredictionPage = () => {
                               <span className="font-medium text-gray-700">Symptoms:</span>
                               <p className="text-sm text-gray-600">{disease.symptoms}</p>
                             </div>
-
                             <div>
                               <span className="font-medium text-gray-700">Prevention:</span>
                               <p className="text-sm text-gray-600">{disease.prevention}</p>
                             </div>
                           </div>
-
                           <div className="bg-gray-200 rounded-lg h-24 flex items-center justify-center">
                             <span className="text-gray-500 text-sm">Disease Image</span>
                           </div>
@@ -312,11 +319,10 @@ const DiseasePredictionPage = () => {
         </div>
       </main>
 
-      <Chatbot/>
+      <Chatbot />
       <BottomNav />
     </div>
   )
 }
 
 export default DiseasePredictionPage
-

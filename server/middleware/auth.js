@@ -5,19 +5,25 @@ module.exports = function(req, res, next) {
   // Get token from header
   const token = req.header('Authorization')?.replace('Bearer ', '');
   
-  // Check if no token
+  // If no token, we'll still proceed but mark the request as unauthenticated
   if (!token) {
-    return res.status(401).json({ error: 'No token, authorization denied' });
+    req.isAuthenticated = false;
+    req.user = null;
+    return next();
   }
   
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
     
     // Add user from payload
     req.user = decoded;
+    req.isAuthenticated = true;
     next();
   } catch (err) {
-    res.status(401).json({ error: 'Token is not valid' });
+    // Invalid token, but we'll still proceed
+    req.isAuthenticated = false;
+    req.user = null;
+    next();
   }
 };

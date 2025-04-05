@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Sun, Cloud, CloudRain, Wind } from "react-feather"
+import { useEffect, useState } from "react"
+import { Cloud, CloudRain, Sun, Wind } from "react-feather"
 import { weatherService } from "../services/weatherService"
 
 const WeatherWidget = () => {
@@ -26,7 +26,8 @@ const WeatherWidget = () => {
             condition: weatherService.mapCondition(weatherData.weather[0]),
             rainChance: Math.round(weatherData.clouds.all), // Using clouds as proxy for rain chance
             windSpeed: Math.round(weatherData.wind.speed * 3.6), // Convert m/s to km/h
-            humidity: weatherData.main.humidity
+            humidity: weatherData.main.humidity,
+            city: weatherData.name 
           });
 
           // Fetch forecast
@@ -62,12 +63,15 @@ const WeatherWidget = () => {
         return <Cloud className="text-gray-400" size={24} />
       case "cloudy":
         return <Cloud className="text-gray-500" size={24} />
-      case "rain":
-        return <CloudRain className="text-blue-500" size={24} />
+      case "rainy":
+        return <CloudRain className="text-blue-400" size={24} />
+      case "windy":
+        return <Wind className="text-green-400" size={24} />
       default:
-        return <Sun className="text-yellow-500" size={24} />
+        return <Cloud className="text-gray-400" size={24} />
     }
   }
+  
 
   const toggleForecast = () => {
     setShowForecast(!showForecast)
@@ -94,7 +98,7 @@ const WeatherWidget = () => {
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-bold text-gray-800">Today's Weather</h3>
-          <span className="text-sm text-gray-500">Your Location</span>
+          <span className="text-sm text-gray-500">{currentWeather?.city || "Your Location"}</span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -117,26 +121,22 @@ const WeatherWidget = () => {
             </div>
           </div>
         </div>
-
-
-         {/* Smart Watering Recommendation */}
-      {forecast.length > 0 && (
-        <div className="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-4 mt-4">
-          <h3 className="font-bold text-green-800 text-sm">Smart Watering Recommendation</h3>
-          <p className="text-green-700 mt-1">
-            {forecast[0].rainChance > 60
-              ? "Rain is expected tomorrow. Reduce watering to avoid overwatering."
-              : forecast[0].temp > 35
-              ? "Hot weather expected. Increase watering to keep plants hydrated."
-              : currentWeather?.humidity < 30
-              ? "Low humidity detected. Consider increasing watering slightly."
-              : "Weather conditions are normal. Maintain your regular watering schedule."
-            }
-          </p>
-        </div>
-      )}
-
-        
+        {/* Smart Watering Recommendation */}
+        {forecast.length > 1 && (
+          <div className="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-4 mt-4">
+            <h3 className="font-bold text-green-800 text-sm">Smart Watering Recommendation</h3>
+            <p className="text-green-700 mt-1">
+              {forecast[1].rainChance > 60
+                ? "Rain is expected tomorrow. Reduce watering to avoid overwatering."
+                : forecast[1].high > 35
+                  ? "Hot weather expected. Increase watering to keep plants hydrated."
+                  : forecast[1].humidity < 30
+                    ? "Low humidity tomorrow. Consider increasing watering slightly."
+                    : "Weather conditions are normal. Maintain regular watering schedule."
+              }
+            </p>
+          </div>
+        )}
       </div>
 
       {showForecast && forecast.length > 0 && (
