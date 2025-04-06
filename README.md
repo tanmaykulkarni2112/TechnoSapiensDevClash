@@ -6,7 +6,6 @@ A comprehensive smart agriculture solution to empower farmers at every stage of 
 
 ---
 
----
 
 ## 🚀 Features
 
