@@ -8,6 +8,7 @@ import AnalyticsDashboard from "../components/AnalyticsDashboard"
 import TipOfTheDay from "../components/TipOfTheDay"
 import NewsSection from "../components/NewsSection"
 import GreenCalendar from "../components/GreenCalendar"
+import Chatbot from "../components/Chatbot/Chatbot"
 
 const HomePage = () => {
   const { currentUser } = useAuth()
@@ -54,6 +55,7 @@ const HomePage = () => {
         </div>
       </main>
 
+      <Chatbot/>
       <BottomNav />
     </div>
   )

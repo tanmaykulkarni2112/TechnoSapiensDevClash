@@ -41,7 +41,7 @@ const TopBar = ({ title, textKeys, setTranslatedText }) => {
           <Menu size={24} />
         </button>
 
-        <h1 className="text-xl font-bold">{title || "SmartFarm"}</h1>
+        <h1 className="text-xl font-bold">{title || "KrishiSevak"}</h1>
 
         <div className="flex items-center space-x-2">
           <button
