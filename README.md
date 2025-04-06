@@ -71,12 +71,11 @@ A comprehensive smart agriculture solution to empower farmers at every stage of 
 - **React Router**
 - **Context API**
 - **Axios**
-- **i18next** (Language Translation)
+
 
 ### 🧠 Backend
 - **Node.js**, **Express.js**
 - **MongoDB** (Mongoose ODM)
-- **JWT Authentication**
 - **REST API Design**
 
 ### 🌤 Weather & Chatbot
