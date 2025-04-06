@@ -28,6 +28,42 @@ A comprehensive smart agriculture solution to empower farmers at every stage of 
 
 ---
 
+## 🧠 Machine Learning Models
+
+### 1. **🌿 Plant Disease Detection (94% Accuracy)**
+
+- **Model Used:** ResNet50 (Transfer Learning)
+- **Dataset:** Over 80,000 images of plants, categorized into 38 classes of plant diseases.
+- **Methodology:**
+  - Used pre-trained ResNet50 model.
+  - Fine-tuned using advanced augmentation techniques.
+  - Achieved a training accuracy of 94%.
+- **Use Case:** Farmers upload leaf images to detect disease and get instant remedies.
+
+### 2. **💧 Groundwater Prediction (91% Accuracy)**
+
+- **Model Used:** LSTM VAE (Variational Autoencoder)
+- **Methodology:**
+  - Historical groundwater level data fed into LSTM layers.
+  - Autoencoder architecture ensures dimensionality reduction and sequence learning.
+  - Achieved 91% prediction accuracy.
+- **Use Case:** Helps in planning irrigation schedules and water resource management.
+
+---
+## 🛠️ Setup Instructions
+
+### 📦 Prerequisites
+
+- Node.js v18+
+- Python 3.8+
+- MongoDB (Local or Atlas)
+- Vite (used for frontend build)
+- Pip + virtualenv
+
+---
+
+### ⚙️ How to Run the Project
+
 ## 🔧 Technologies Used
 
 ### 🌐 Frontend
@@ -61,5 +97,33 @@ A comprehensive smart agriculture solution to empower farmers at every stage of 
 ```bash
 git clone https://github.com/tanmaykulkarni2112/technosapiensdevclash.git
 cd tanmaykulkarni2112-technosapiensdevclash
+```
+### 2.Install Frontend Dependencies
+```bash
+cd client
+npm install
+```
 
+### 3.Install Backend Dependencies
+```bash
+cd ../server
+npm install
+```
 
+### 4.Start Frontend
+```bash
+cd ../client
+npm run dev
+```
+
+### 5.Start Backend
+```bash
+cd ../server
+node server.js
+```
+
+### 6.Run ML Server 
+```bash
+cd ../ML_Training_jupyter_files
+python app.py
+```
